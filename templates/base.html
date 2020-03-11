@@ -1,0 +1,21 @@
+{% load bootstrap4 %}
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Cluster in the Cloud</title>
+  {% bootstrap_css %}
+</head>
+
+<body>
+{% if user.is_authenticated %}
+    <li>User: {{ user.get_username }}</li>
+    <li><a href="{% url 'logout'%}?next={{request.path}}">Logout</a></li>
+{% else %}
+    <li><a href="{% url 'login'%}?next={{request.path}}">Login</a></li>
+{% endif %}
+
+{% block content %}{% endblock %}
+</body>
+</html>
