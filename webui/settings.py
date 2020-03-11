@@ -21,7 +21,6 @@ in_production = False
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-# TODO set from Ansible
 SECRET_KEY = 'r=a&xw5rb4zo17x$w*3=9@id30q7z-!r%dar5q0r+1on3h=b)d'
 
 # SECURITY WARNING: don't run with debug turned on in production!
