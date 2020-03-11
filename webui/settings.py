@@ -15,6 +15,7 @@ import os
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+in_production = False
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
@@ -23,10 +24,13 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'r=a&xw5rb4zo17x$w*3=9@id30q7z-!r%dar5q0r+1on3h=b)d'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = not in_production
 
-# TODO get from Terraform/Ansible
-ALLOWED_HOSTS = ['*']
+if in_production:
+    # TODO get from Terraform/Ansible
+    ALLOWED_HOSTS = ['*']
+else:
+    ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -38,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'citc',
 ]
 
 MIDDLEWARE = [
@@ -74,14 +79,22 @@ WSGI_APPLICATION = 'webui.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'OPTIONS': {
-            'read_default_file': '/etc/citc/webui.my.cnf',
-        },
+if not in_production:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'OPTIONS': {
+                'read_default_file': '/etc/citc/webui.my.cnf',
+            },
+        }
+    }
 
 
 # Password validation
