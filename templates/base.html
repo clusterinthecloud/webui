@@ -1,4 +1,7 @@
 {% load bootstrap4 %}
+{% load static %}
+
+
 <!doctype html>
 
 <html lang="en">
@@ -7,6 +10,7 @@
     <title>Cluster in the Cloud</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     {% bootstrap_css %}
+    <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
 </head>
 
 <body>
@@ -54,5 +58,6 @@
     </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.9.0/feather.min.js"></script>
 </body>
 </html>
