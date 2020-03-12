@@ -5,7 +5,7 @@ from citc.users import user_exists
 
 
 def validate_keys(value):
-    if not value.startswith("http"):
+    if not value.startswith("http") and not value.startswith("ssh-rsa"):
         raise ValidationError("must be a URL")
 
 

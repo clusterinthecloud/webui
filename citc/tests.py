@@ -4,6 +4,7 @@ import pytest
 from django.urls import reverse
 from ldap3 import Connection, MOCK_SYNC
 
+from citc.forms import UserForm
 from citc.users import get_all_users, create_user, get_user
 
 
@@ -59,6 +60,15 @@ def test_create_user_get_uid(conn, mocker):
     assert len(users) == 2
     assert get_user(conn, "matt1").uidNumber == "10001"
     assert get_user(conn, "matt2").uidNumber == "10002"
+
+
+@pytest.mark.parametrize("keys", [
+    "https://github.com/milliams.keys",
+    "ssh-rsa AAAAB3NzaC1yc2 matt@home",
+])
+def test_validate_form(keys):
+    form = UserForm({"uid": "foo", "given_name": "foo", "sn": "foo", "keys": keys})
+    assert form.is_valid(), form.errors
 
 
 def test_form_create_user(auth_client, conn, mocker):
