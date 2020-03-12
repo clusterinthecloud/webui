@@ -29,10 +29,25 @@ def get_all_users(conn, attributes=ALL_ATTRIBUTES):
 
 def get_user(conn, uid, attributes=ALL_ATTRIBUTES):
     conn.search(BASE_DN, f'(&(objectclass=posixAccount)(cn={uid}))', attributes=attributes)
-    return conn.entries[0]
+    try:
+        return conn.entries[0]
+    except IndexError:
+        raise LookupError("User not found")
+
+
+def user_exists(conn, uid):
+    try:
+        get_user(conn, uid)
+    except LookupError:
+        return False
+    else:
+        return True
 
 
 def create_user(conn: Connection, uid: str, given_name: str, sn: str, keys: str):
+    if user_exists(conn, uid):
+        raise RuntimeError("User already exists")
+
     starting_uid_number = 10001
     gid_number = 100
     home_root = Path("/mnt/shared/home")
