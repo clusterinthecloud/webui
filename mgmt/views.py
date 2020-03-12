@@ -27,8 +27,8 @@ def index(request):
         nodes = [citc.slurm.SlurmNode.from_name(n) for n in citc.slurm.node_list(Path("/mnt/shared/etc/slurm/slurm.conf"))]
     except FileNotFoundError:
         nodes = [
-            citc.slurm.SlurmNode(name="demo-1", state="idle", state_flag=None, features={}),
-            citc.slurm.SlurmNode(name="demo-2", state="idle", state_flag="~", features={}),
+            citc.slurm.SlurmNode(name="demo-1", state="idle", state_flag=None, features={}, reason=""),
+            citc.slurm.SlurmNode(name="demo-2", state="idle", state_flag="~", features={}, reason="Reason"),
         ]
 
     return render(request, "index.html", {
