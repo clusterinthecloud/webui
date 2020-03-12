@@ -80,5 +80,5 @@ def create_user(conn: Connection, uid: str, given_name: str, sn: str, keys: str)
         with urllib.request.urlopen(keys) as f:
             keys = f.read()
 
-    subprocess.run(["sudo", "/usr/local/libexec/create_home_dir", uid], capture_output=True, check=True)
-    subprocess.run(["sudo", "/usr/local/libexec/set_ssh_key", uid], capture_output=True, check=True, input=keys)
+    subprocess.run(["sudo", "/usr/local/libexec/create_home_dir", uid], check=True)
+    subprocess.run(["sudo", "/usr/local/libexec/set_ssh_key", uid], check=True, input=keys)
