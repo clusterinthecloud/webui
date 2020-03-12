@@ -10,7 +10,7 @@
     <div>
         Slurm status: {{ slurmctld_status }}<br>
         {% if slurmctld_status == "inactive" %}
-            You must perform the <i>finish</i> step in the documentation which will start Slurm.
+            <div class="alert alert-warning" role="alert">You must perform the <i>finish</i> step in the documentation which will start Slurm.</div>
         {% endif %}
     </div>
 
