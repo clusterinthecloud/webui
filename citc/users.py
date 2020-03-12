@@ -46,14 +46,14 @@ def create_user(conn, uid, given_name, sn, keys):
     # TODO copy in skel for home directory
     # TODO copy in SSH keys
 
-    user_dict = {
-        'objectClass': [
+    object_classes = [
             'top',
             'person',
             'organizationalPerson',
             'inetOrgPerson',
             'posixAccount',
-        ],
+        ]
+    user_dict = {
         'cn': uid,
         'givenName': given_name,
         'sn': sn,
@@ -63,6 +63,6 @@ def create_user(conn, uid, given_name, sn, keys):
         'homeDirectory': str(home_root / uid),
         'loginShell': '/bin/bash',
     }
-    conn.strategy.add_entry(f'cn={uid},{BASE_DN}', user_dict)
+    conn.add(f'cn={uid},{BASE_DN}', object_classes, user_dict)
 
     # TODO recursively chown home directory
