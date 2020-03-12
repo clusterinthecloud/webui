@@ -15,7 +15,7 @@ import os
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-in_production = False
+IN_PRODUCTION = False
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
@@ -24,9 +24,9 @@ in_production = False
 SECRET_KEY = 'r=a&xw5rb4zo17x$w*3=9@id30q7z-!r%dar5q0r+1on3h=b)d'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = not in_production
+DEBUG = not IN_PRODUCTION
 
-if in_production:
+if IN_PRODUCTION:
     # TODO get from Terraform/Ansible
     ALLOWED_HOSTS = ['*']
 else:
@@ -80,7 +80,7 @@ WSGI_APPLICATION = 'webui.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
-if not in_production:
+if not IN_PRODUCTION:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
