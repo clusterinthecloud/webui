@@ -18,4 +18,25 @@
         Slurm log:
         <div class="log">{{ slurmctld_log | safe }}</div>
     </div>
+
+    <h2>Slurm nodes</h2>
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">Node</th>
+            <th scope="col">State</th>
+            <th scope="col">State flag</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for n in slurm_nodes %}
+            <tr>
+                <td>{{ n.name }}</td>
+                <td>{{ n.state }}</td>
+                <td>{{ n.state_flag }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
 {% endblock %}

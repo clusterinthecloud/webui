@@ -1,5 +1,7 @@
 import subprocess
+from pathlib import Path
 
+import citc.slurm
 from ansi2html import Ansi2HTMLConverter
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
@@ -21,9 +23,18 @@ def index(request):
     slurmctld_log = conv.convert(slurmctld_log, full=False)
     slurmctld_log = "<br>\n".join(slurmctld_log.split("\n"))
 
+    try:
+        nodes = list(citc.slurm.node_list(Path("/mnt/shared/etc/slurm/slurm.conf")))
+    except FileNotFoundError:
+        nodes = [
+            citc.slurm.SlurmNode(name="demo-1", state="idle", state_flag=None, features={}),
+            citc.slurm.SlurmNode(name="demo-2", state="idle", state_flag="~", features={}),
+        ]
+
     return render(request, "index.html", {
         "slurmctld_status": slurmctld_status,
         "slurmctld_log": slurmctld_log,
+        "slurm_nodes": nodes,
     })
 
 
