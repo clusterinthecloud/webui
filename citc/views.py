@@ -8,5 +8,5 @@ def index(request):
 
 
 @login_required
-def info(request):
-    return render(request, "info.html")
+def users(request):
+    return render(request, "users.html")
