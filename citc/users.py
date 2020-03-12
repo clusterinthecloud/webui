@@ -52,7 +52,7 @@ def create_user(conn: Connection, uid: str, given_name: str, sn: str, keys: str)
     home_root = Path("/mnt/shared/home")
     uid_numbers = get_all_users(conn, attributes=["uidNumber"])
     try:
-        max_uid = int(max(uid_numbers, key=lambda u: u.uidNumber).uidNumber.value)
+        max_uid = int(max(uid_numbers, key=lambda u: int(u.uidNumber.value)).uidNumber.value)
         uid_number = max_uid + 1
     except ValueError:
         uid_number = starting_uid_number
