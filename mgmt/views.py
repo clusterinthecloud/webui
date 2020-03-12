@@ -24,7 +24,7 @@ def index(request):
     slurmctld_log = "<br>\n".join(slurmctld_log.split("\n"))
 
     try:
-        nodes = list(citc.slurm.node_list(Path("/mnt/shared/etc/slurm/slurm.conf")))
+        nodes = [citc.slurm.SlurmNode.from_name(n) for n in citc.slurm.node_list(Path("/mnt/shared/etc/slurm/slurm.conf"))]
     except FileNotFoundError:
         nodes = [
             citc.slurm.SlurmNode(name="demo-1", state="idle", state_flag=None, features={}),
