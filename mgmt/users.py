@@ -1,11 +1,10 @@
 import subprocess
 import urllib.request
-from copy import copy
 from pathlib import Path
 
 import yaml
 from django.conf import settings
-from ldap3 import Connection, ALL_ATTRIBUTES, MOCK_SYNC
+from ldap3 import Connection, MOCK_SYNC, ObjectDef, Reader, Server, OFFLINE_DS389_1_3_3, Writer
 
 BASE_DN = "ou=People,dc=citc,dc=acrc,dc=bristol,dc=ac,dc=uk"
 
@@ -16,20 +15,24 @@ def connection():
             config = yaml.safe_load(f)
         conn = Connection('ldap://localhost', user='cn=Directory Manager', password=config["ldap_password"], auto_bind=True)
     else:
-        conn = Connection('my_fake_server', user='cn=Directory Manager', password='my_password', client_strategy=MOCK_SYNC)
-        conn.bind()
+        server = Server("my_fake_server", get_info=OFFLINE_DS389_1_3_3)
+        conn = Connection(server, user='cn=Directory Manager', password='my_password', client_strategy=MOCK_SYNC, auto_bind=True)
     return conn
 
 
-def get_all_users(conn, attributes=ALL_ATTRIBUTES):
-    conn.search(BASE_DN, '(objectclass=posixAccount)', attributes=attributes)
-    return copy(conn.entries)
+def get_all_users(conn, attributes=None):
+    obj_posix_account = ObjectDef(['top', 'person', 'organizationalPerson', 'inetOrgPerson', 'posixAccount'], conn)
+    r = Reader(conn, obj_posix_account, BASE_DN, attributes=attributes)
+    r.search()
+    return r
 
 
-def get_user(conn, uid, attributes=ALL_ATTRIBUTES):
-    conn.search(BASE_DN, f'(&(objectclass=posixAccount)(cn={uid}))', attributes=attributes)
+def get_user(conn, uid, attributes=None):
+    obj_posix_account = ObjectDef(['top', 'person', 'organizationalPerson', 'inetOrgPerson', 'posixAccount'], conn)
+    r = Reader(conn, obj_posix_account, BASE_DN, f"cn: {uid}", attributes=attributes)
+    r.search()
     try:
-        return conn.entries[0]
+        return r[0]
     except IndexError:
         raise LookupError("User not found")
 
@@ -57,24 +60,17 @@ def create_user(conn: Connection, uid: str, given_name: str, sn: str, keys: str)
     except ValueError:
         uid_number = starting_uid_number
 
-    object_classes = [
-        'top',
-        'person',
-        'organizationalPerson',
-        'inetOrgPerson',
-        'posixAccount',
-    ]
-    user_dict = {
-        'cn': uid,
-        'givenName': given_name,
-        'sn': sn,
-        'uid': uid,
-        'uidNumber': uid_number,
-        'gidNumber': gid_number,
-        'homeDirectory': str(home_root / uid),
-        'loginShell': '/bin/bash',
-    }
-    conn.add(f'cn={uid},{BASE_DN}', object_classes, user_dict)
+    obj_posix_account = ObjectDef(['top', 'person', 'organizationalPerson', 'inetOrgPerson', 'posixAccount'], conn)
+    w = Writer(conn, obj_posix_account)
+    e = w.new(f'cn={uid},{BASE_DN}')
+    e.givenName = given_name
+    e.sn = sn
+    e.uid = uid
+    e.uidNumber = uid_number
+    e.gidNumber = gid_number
+    e.homeDirectory = str(home_root / uid)
+    e.loginShell = '/bin/bash'
+    w.commit()
 
     if keys.startswith("http"):
         with urllib.request.urlopen(keys) as f:

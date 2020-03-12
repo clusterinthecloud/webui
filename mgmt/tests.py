@@ -2,7 +2,7 @@ import uuid
 
 import pytest
 from django.urls import reverse
-from ldap3 import Connection, MOCK_SYNC
+from ldap3 import Connection, MOCK_SYNC, Server, OFFLINE_DS389_1_3_3
 
 from mgmt.forms import UserForm
 from mgmt.users import get_all_users, create_user, get_user
@@ -21,8 +21,8 @@ def auth_client(client, django_user_model):
 def conn():
     id = str(uuid.uuid4())
     print("Creating new connection", id)
-    conn = Connection(id, user='cn=Directory Manager', password='my_password', client_strategy=MOCK_SYNC)
-    conn.bind()
+    server = Server(id, get_info=OFFLINE_DS389_1_3_3)
+    conn = Connection(server, user='cn=Directory Manager', password='my_password', client_strategy=MOCK_SYNC, auto_bind=True)
     return conn
 
 
@@ -37,7 +37,7 @@ def test_create_user(conn, mocker):
     users = get_all_users(conn)
     assert len(users) == 1
     assert users[0].sn == "Williams"
-    assert users[0].uidNumber == "10001"
+    assert users[0].uidNumber == 10001
 
 
 def test_get_user(conn):
@@ -58,8 +58,8 @@ def test_create_user_get_uid(conn, mocker):
     create_user(conn, 'matt2', 'Matt', 'Williams', "https://github.com/milliams.keys")
     users = get_all_users(conn)
     assert len(users) == 2
-    assert get_user(conn, "matt1").uidNumber == "10001"
-    assert get_user(conn, "matt2").uidNumber == "10002"
+    assert get_user(conn, "matt1").uidNumber == 10001
+    assert get_user(conn, "matt2").uidNumber == 10002
 
 
 @pytest.mark.parametrize("keys", [
@@ -67,7 +67,8 @@ def test_create_user_get_uid(conn, mocker):
     "ssh-rsa AAAAB3NzaC1yc2 matt@home",
     "ssh-rsa AAAAB3NzaC1yc2 matt@home\nssh-rsa AAAAB3NzaC1yc2 matt@home",
 ])
-def test_validate_form(keys):
+def test_validate_form(conn, keys, mocker):
+    mocker.patch("mgmt.users.connection", lambda: conn)
     form = UserForm({"uid": "foo", "given_name": "foo", "sn": "foo", "keys": keys})
     assert form.is_valid(), form.errors
 
