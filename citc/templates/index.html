@@ -4,4 +4,18 @@
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
         <h1 class="h2">Welcome to Cluster in the Cloud</h1>
     </div>
+
+    <h2>Slurm</h2>
+
+    <div>
+        Slurm status: {{ slurmctld_status }}<br>
+        {% if slurmctld_status == "inactive" %}
+            You must perform the <i>finish</i> step in the documentation which will start Slurm.
+        {% endif %}
+    </div>
+
+    <div>
+        Slurm log:
+        <div class="log">{{ slurmctld_log | safe }}</div>
+    </div>
 {% endblock %}

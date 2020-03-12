@@ -5,3 +5,4 @@ pyyaml
 pytest-django
 pytest-mock
 ldap3
+ansi2html
