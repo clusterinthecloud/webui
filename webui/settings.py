@@ -36,7 +36,7 @@ else:
 # Application definition
 
 INSTALLED_APPS = [
-    'citc',
+    'mgmt',
     'bootstrap4',
     'django.contrib.admin',
     'django.contrib.auth',

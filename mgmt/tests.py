@@ -4,8 +4,8 @@ import pytest
 from django.urls import reverse
 from ldap3 import Connection, MOCK_SYNC
 
-from citc.forms import UserForm
-from citc.users import get_all_users, create_user, get_user
+from mgmt.forms import UserForm
+from mgmt.users import get_all_users, create_user, get_user
 
 
 @pytest.fixture(scope="function")
@@ -73,14 +73,14 @@ def test_validate_form(keys):
 
 
 def test_form_create_user(auth_client, conn, mocker):
-    mocker.patch("citc.users.connection", lambda: conn)
-    m = mocker.patch("citc.users.create_user")
+    mocker.patch("mgmt.users.connection", lambda: conn)
+    m = mocker.patch("mgmt.users.create_user")
     auth_client.post(reverse('add_user'), {"uid": "foo", "given_name": "foo", "sn": "foo", "keys": "http://foo"})
     assert m.called_once_with("foo", "foo", "foo", "http://foo")
 
 
 def test_form_duplicate_user(auth_client, conn, mocker):
-    mocker.patch("citc.users.connection", lambda: conn)
+    mocker.patch("mgmt.users.connection", lambda: conn)
     mocker.patch('subprocess.run')
     create_user(conn, "foo", "", "", "")
     r = auth_client.post(reverse('add_user'), {"uid": "foo", "given_name": "foo", "sn": "foo", "keys": "http://foo"})

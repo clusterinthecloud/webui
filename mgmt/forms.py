@@ -2,7 +2,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
 
-from citc.users import user_exists
+from mgmt.users import user_exists
 
 
 def validate_keys(value):
@@ -14,7 +14,7 @@ def validate_keys(value):
 
 
 def validate_user_not_exists(value):
-    from citc.users import connection
+    from mgmt.users import connection
     conn = connection()
     if user_exists(conn, value):
         raise ValidationError("User already exists")
