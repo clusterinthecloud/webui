@@ -1,12 +1,16 @@
 from django import forms
 from django.core.exceptions import ValidationError
+from django.core.validators import URLValidator
 
 from citc.users import user_exists
 
 
 def validate_keys(value):
-    if not value.startswith("http") and not value.startswith("ssh-rsa"):
-        raise ValidationError("must be a URL")
+    try:
+        URLValidator()(value)
+    except ValidationError as e:
+        if not value.startswith("ssh-rsa"):
+            raise ValidationError("Must be a URL or an SSH public key")
 
 
 def validate_user_not_exists(value):

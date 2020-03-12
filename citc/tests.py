@@ -65,6 +65,7 @@ def test_create_user_get_uid(conn, mocker):
 @pytest.mark.parametrize("keys", [
     "https://github.com/milliams.keys",
     "ssh-rsa AAAAB3NzaC1yc2 matt@home",
+    "ssh-rsa AAAAB3NzaC1yc2 matt@home\nssh-rsa AAAAB3NzaC1yc2 matt@home",
 ])
 def test_validate_form(keys):
     form = UserForm({"uid": "foo", "given_name": "foo", "sn": "foo", "keys": keys})
