@@ -1,7 +1,10 @@
+import uuid
+
 import pytest
 from django.urls import reverse
+from ldap3 import Connection, MOCK_SYNC
 
-from citc.users import connection, get_all_users, create_user, get_user
+from citc.users import get_all_users, create_user, get_user
 
 
 @pytest.fixture(scope="function")
@@ -15,7 +18,11 @@ def auth_client(client, django_user_model):
 
 @pytest.fixture(scope="function")
 def conn():
-    return connection()
+    id = str(uuid.uuid4())
+    print("Creating new connection", id)
+    conn = Connection(id, user='cn=Directory Manager', password='my_password', client_strategy=MOCK_SYNC)
+    conn.bind()
+    return conn
 
 
 def test_connection(conn):
@@ -54,7 +61,17 @@ def test_create_user_get_uid(conn, mocker):
     assert get_user(conn, "matt2").uidNumber == "10002"
 
 
-def test_form_validate(auth_client, mocker):
-    m = mocker.patch("citc.users.user_exists")
+def test_form_create_user(auth_client, conn, mocker):
+    mocker.patch("citc.users.connection", lambda: conn)
+    m = mocker.patch("citc.users.create_user")
     auth_client.post(reverse('add_user'), {"uid": "foo", "given_name": "foo", "sn": "foo", "keys": "http://foo"})
     assert m.called_once_with("foo", "foo", "foo", "http://foo")
+
+
+def test_form_duplicate_user(auth_client, conn, mocker):
+    mocker.patch("citc.users.connection", lambda: conn)
+    mocker.patch('subprocess.run')
+    create_user(conn, "foo", "", "", "")
+    r = auth_client.post(reverse('add_user'), {"uid": "foo", "given_name": "foo", "sn": "foo", "keys": "http://foo"})
+    assert r.status_code == 200
+    assert '<div class="invalid-feedback">User already exists</div>' in r.content.decode()

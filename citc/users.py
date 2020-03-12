@@ -5,7 +5,7 @@ from pathlib import Path
 
 import yaml
 from django.conf import settings
-from ldap3 import Server, Connection, ALL_ATTRIBUTES, MOCK_SYNC
+from ldap3 import Connection, ALL_ATTRIBUTES, MOCK_SYNC
 
 BASE_DN = "ou=People,dc=citc,dc=acrc,dc=bristol,dc=ac,dc=uk"
 
@@ -16,8 +16,7 @@ def connection():
             config = yaml.safe_load(f)
         conn = Connection('ldap://localhost', user='cn=Directory Manager', password=config["ldap_password"], auto_bind=True)
     else:
-        server = Server('my_fake_server')
-        conn = Connection(server, user='cn=Directory Manager', password='my_password', client_strategy=MOCK_SYNC)
+        conn = Connection('my_fake_server', user='cn=Directory Manager', password='my_password', client_strategy=MOCK_SYNC)
         conn.bind()
     return conn
 

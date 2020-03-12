@@ -4,7 +4,7 @@ from django.shortcuts import render
 from django.urls import reverse
 
 from citc.forms import UserForm
-from citc.users import connection, get_all_users, create_user
+from citc.users import get_all_users, create_user
 
 
 @login_required
@@ -14,6 +14,7 @@ def index(request):
 
 @login_required
 def users(request):
+    from citc.users import connection
     conn = connection()
     users = get_all_users(conn)
 
@@ -32,6 +33,7 @@ def add_user(request):
             sn = form.cleaned_data['sn']
             keys = form.cleaned_data['keys']
 
+            from citc.users import connection
             conn = connection()
             create_user(conn, uid, given_name, sn, keys)
 
