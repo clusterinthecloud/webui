@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% load bootstrap4 %}
+
+{% block content %}
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Add user</h1>
+    </div>
+
+    <form action="{% url 'add_user' %}" method="post">
+        {% csrf_token %}
+        {% bootstrap_form form %}
+        <button class="btn btn-primary" type="submit">Create</button>
+    </form>
+{% endblock %}

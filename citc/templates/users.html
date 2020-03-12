@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% load bootstrap4 %}
+
 {% block content %}
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
         <h1 class="h2">Users</h1>
@@ -23,4 +25,7 @@
         {% endfor %}
         </tbody>
     </table>
+
+    {% url 'add_user' as add_user_url %}
+    {% bootstrap_button "Add user" button_type="link" href=add_user_url %}
 {% endblock %}

@@ -1,10 +1,10 @@
-from copy import copy
-
-import yaml
-from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseRedirect
 from django.shortcuts import render
-from ldap3 import Server, Connection, MOCK_SYNC, ALL_ATTRIBUTES
+from django.urls import reverse
+
+from citc.forms import UserForm
+from citc.users import connection, get_all_users, create_user
 
 
 @login_required
@@ -14,36 +14,29 @@ def index(request):
 
 @login_required
 def users(request):
-    base_dn = "ou=People,dc=citc,dc=acrc,dc=bristol,dc=ac,dc=uk"
-    if settings.IN_PRODUCTION:
-        with open("/etc/citc/webui.yaml", "r") as f:
-            config = yaml.safe_load(f)
-        connection = Connection('ldap://localhost', user='cn=Directory Manager', password=config["ldap_password"], auto_bind=True)
-    else:
-        server = Server('my_fake_server')
-        connection = Connection(server, user='cn=Directory Manager', password='my_password', client_strategy=MOCK_SYNC)
-        connection.strategy.add_entry(f'cn=matt,{base_dn}',
-                                      {
-                                          'objectClass': [
-                                              'top',
-                                              'person',
-                                              'organizationalPerson',
-                                              'inetOrgPerson',
-                                              'posixAccount',
-                                          ],
-                                          'cn': 'matt',
-                                          'givenName': 'Matt',
-                                          'sn': 'Williams',
-                                          'uid': 'matt',
-                                          'uidNumber': 10001,
-                                          'gidNUmber': 100,
-                                          'homeDirectory': '/mnt/shared/home/matt',
-                                          'loginShell': '/bin/bash',
-                                      })
-        connection.bind()
-    connection.search('ou=People,dc=citc,dc=acrc,dc=bristol,dc=ac,dc=uk', '(objectclass=posixAccount)', attributes=ALL_ATTRIBUTES)
-    users = copy(connection.entries)
+    conn = connection()
+    users = get_all_users(conn)
 
     context = {"users": users}
 
     return render(request, "users.html", context)
+
+
+@login_required
+def add_user(request):
+    if request.method == 'POST':
+        form = UserForm(request.POST)
+        if form.is_valid():
+            uid = form.cleaned_data['uid']
+            given_name = form.cleaned_data['given_name']
+            sn = form.cleaned_data['sn']
+            keys = form.cleaned_data['keys']
+
+            conn = connection()
+            create_user(conn, uid, given_name, sn, keys)
+
+            return HttpResponseRedirect(reverse('users'))
+    else:
+        form = UserForm()
+
+    return render(request, 'add_user.html', {'form': form})
