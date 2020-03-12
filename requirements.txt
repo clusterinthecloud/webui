@@ -4,3 +4,4 @@ django-bootstrap4
 pyyaml
 pytest-django
 pytest-mock
+ldap3

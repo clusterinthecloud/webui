@@ -4,4 +4,23 @@
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
         <h1 class="h2">Users</h1>
     </div>
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">uid</th>
+            <th scope="col">First</th>
+            <th scope="col">Last</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for user in users %}
+            <tr>
+                <td>{{ user.cn }}</td>
+                <td>{{ user.givenName }}</td>
+                <td>{{ user.sn }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
 {% endblock %}
