@@ -1,3 +1,5 @@
+import subprocess
+import urllib.request
 from copy import copy
 from pathlib import Path
 
@@ -30,7 +32,7 @@ def get_user(conn, uid, attributes=ALL_ATTRIBUTES):
     return conn.entries[0]
 
 
-def create_user(conn, uid, given_name, sn, keys):
+def create_user(conn: Connection, uid: str, given_name: str, sn: str, keys: str):
     starting_uid_number = 10001
     gid_number = 100
     home_root = Path("/mnt/shared/home")
@@ -41,28 +43,28 @@ def create_user(conn, uid, given_name, sn, keys):
     except ValueError:
         uid_number = starting_uid_number
 
-    # TODO make home directory
-    # TODO chmod home directory
-    # TODO copy in skel for home directory
-    # TODO copy in SSH keys
-
     object_classes = [
-            'top',
-            'person',
-            'organizationalPerson',
-            'inetOrgPerson',
-            'posixAccount',
-        ]
+        'top',
+        'person',
+        'organizationalPerson',
+        'inetOrgPerson',
+        'posixAccount',
+    ]
     user_dict = {
         'cn': uid,
         'givenName': given_name,
         'sn': sn,
         'uid': uid,
         'uidNumber': uid_number,
-        'gidNUmber': gid_number,
+        'gidNumber': gid_number,
         'homeDirectory': str(home_root / uid),
         'loginShell': '/bin/bash',
     }
     conn.add(f'cn={uid},{BASE_DN}', object_classes, user_dict)
 
-    # TODO recursively chown home directory
+    if keys.startswith("http"):
+        with urllib.request.urlopen(keys) as f:
+            keys = f.read()
+
+    subprocess.run(["sudo", "/usr/local/libexec/create_home_dir", uid], capture_output=True, check=True)
+    subprocess.run(["sudo", "/usr/local/libexec/set_ssh_key", uid], capture_output=True, check=True, input=keys)

@@ -7,7 +7,8 @@ def test_connection():
     assert len(users) == 0
 
 
-def test_create_user():
+def test_create_user(mocker):
+    mocker.patch('subprocess.run')
     conn = connection()
     create_user(conn, 'matt', 'Matt', 'Williams', "https://github.com/milliams.keys")
     users = get_all_users(conn)
@@ -16,7 +17,8 @@ def test_create_user():
     assert users[0].uidNumber == "10001"
 
 
-def test_create_user_get_uid():
+def test_create_user_get_uid(mocker):
+    mocker.patch('subprocess.run')
     conn = connection()
     create_user(conn, 'matt1', 'Matt', 'Williams', "https://github.com/milliams.keys")
     create_user(conn, 'matt2', 'Matt', 'Williams', "https://github.com/milliams.keys")
