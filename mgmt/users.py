@@ -1,7 +1,9 @@
+import secrets
 import subprocess
 import urllib.request
 from pathlib import Path
 
+import ldap3
 import yaml
 from django.conf import settings
 from ldap3 import Connection, MOCK_SYNC, ObjectDef, Reader, Server, OFFLINE_DS389_1_3_3, Writer
@@ -47,6 +49,7 @@ def user_exists(conn, uid):
 
 
 def create_user(conn: Connection, uid: str, given_name: str, sn: str, keys: str):
+    # TODO make this repeatable and backoutable
     if user_exists(conn, uid):
         raise RuntimeError("User already exists")
 
@@ -60,6 +63,8 @@ def create_user(conn: Connection, uid: str, given_name: str, sn: str, keys: str)
     except ValueError:
         uid_number = starting_uid_number
 
+    password = secrets.token_urlsafe(30)
+
     obj_posix_account = ObjectDef(['top', 'person', 'organizationalPerson', 'inetOrgPerson', 'posixAccount'], conn)
     w = Writer(conn, obj_posix_account)
     e = w.new(f'cn={uid},{BASE_DN}')
@@ -70,6 +75,7 @@ def create_user(conn: Connection, uid: str, given_name: str, sn: str, keys: str)
     e.gidNumber = gid_number
     e.homeDirectory = str(home_root / uid)
     e.loginShell = '/bin/bash'
+    e.userPassword = ldap3.utils.hashed.hashed(ldap3.HASHED_SALTED_SHA512, password)
     w.commit()
 
     if keys.startswith("http"):
@@ -78,3 +84,4 @@ def create_user(conn: Connection, uid: str, given_name: str, sn: str, keys: str)
 
     subprocess.run(["sudo", "/usr/local/libexec/create_home_dir", uid], check=True)
     subprocess.run(["sudo", "/usr/local/libexec/set_ssh_key", uid], check=True, input=keys)
+    subprocess.run(["sudo", "/usr/local/libexec/set_password_file", uid], check=True, input=password)
