@@ -24,4 +24,4 @@ class UserForm(forms.Form):
     uid = forms.CharField(label='uid', max_length=100, validators=[validate_user_not_exists])
     given_name = forms.CharField(label='Given name', max_length=100)
     sn = forms.CharField(label='Surname', max_length=100)
-    keys = forms.CharField(label='SSH keys', help_text="A URL containing public SSH keys", validators=[validate_keys])
+    keys = forms.CharField(label='SSH keys', help_text="An SSH public key or a URL containing public SSH keys", validators=[validate_keys])
