@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% load static %}
+
 {% block content %}
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
         <h1 class="h2">Cluster in the Cloud App Store</h1>
@@ -8,7 +10,7 @@
     <div class="card-deck">
         {% for app, meta in apps.items %}
             <div class="card" style="width: 18rem;">
-                <img src="{{ app }}/{{ meta.icon }}" class="card-img-top" alt="{{ meta.name }}">
+                <img src="{% static ""|add:app|add:"/"|add:meta.icon %}" class="card-img-top" alt="{{ meta.name }}">
                 <div class="card-body">
                     <h5 class="card-title">{{ meta.name }}</h5>
                     <p class="card-text">{{ meta.description }}</p>
