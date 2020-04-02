@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 
-from apps.models import Apps
+from apps.models import App
 
 
 def get_apps():
@@ -22,8 +22,8 @@ def get_app_state(apps):
 
     for a, m in apps.items():
         try:
-            state = Apps.objects.get(pk=a).get_state_display()
-        except Apps.DoesNotExist:
+            state = App.objects.get(pk=a).get_state_display()
+        except App.DoesNotExist:
             state = "Not installed"
         set_apps[a] = m.update({"state": state})
         pass
@@ -50,8 +50,8 @@ def app(request, name):
     if request.method == "POST":
         requested_state = request.POST["state"]
         try:
-            app_object = Apps.objects.get(name=name)
-        except Apps.DoesNotExist:
+            app_object = App.objects.get(name=name)
+        except App.DoesNotExist:
             # If the app is not in the database, maybe its name is wrong
             if name not in get_apps():
                 response = {
@@ -60,7 +60,7 @@ def app(request, name):
                 }
                 return JsonResponse(response, status=404)
             # If the name is correct but it is not in the database, it must not be installed
-            app_object = Apps.objects.update_or_create(name=name, defaults={"state": "U"})[0]
+            app_object = App.objects.update_or_create(name=name, defaults={"state": "U"})[0]
 
         if requested_state == "installed":
             if app_object.state in {"U", "F"}:
@@ -85,8 +85,8 @@ def app(request, name):
 
     if name in get_apps():
         try:
-            state = Apps.objects.get(name=name).get_state_display()
-        except Apps.DoesNotExist:
+            state = App.objects.get(name=name).get_state_display()
+        except App.DoesNotExist:
             state = "Not installed"
         response = {
             "name": name,

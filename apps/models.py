@@ -1,7 +1,7 @@
 from django.db import models
 
 
-class Apps(models.Model):
+class App(models.Model):
     name = models.CharField(max_length=60, primary_key=True)
     APP_STATES = (
         ('I', 'Installed'),

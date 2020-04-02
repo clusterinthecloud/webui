@@ -3,7 +3,7 @@ import yaml
 from django.contrib.messages import get_messages
 from django.urls import reverse
 
-from apps.models import Apps
+from apps.models import App
 from apps.views import get_app_state
 
 
@@ -44,11 +44,11 @@ def test_get_app_state(app_info):
     apps = get_app_state(app_info)
     assert apps["jupyterhub"]["state"] == "Not installed"
 
-    Apps.objects.update_or_create(name="jupyterhub", defaults={"state": "P"})
+    App.objects.update_or_create(name="jupyterhub", defaults={"state": "P"})
     apps = get_app_state(app_info)
     assert apps["jupyterhub"]["state"] == "Installing"
 
-    Apps.objects.update_or_create(name="jupyterhub", defaults={"state": "I"})
+    App.objects.update_or_create(name="jupyterhub", defaults={"state": "I"})
     apps = get_app_state(app_info)
     assert apps["jupyterhub"]["state"] == "Installed"
 
