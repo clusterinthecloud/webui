@@ -37,6 +37,8 @@ else:
 
 INSTALLED_APPS = [
     'mgmt',
+    'apps',
+    'api',
     'bootstrap4',
     'django.contrib.admin',
     'django.contrib.auth',
