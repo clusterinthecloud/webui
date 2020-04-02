@@ -7,5 +7,6 @@ class Apps(models.Model):
         ('I', 'Installed'),
         ('P', 'Installing'),
         ('F', 'Failed'),
+        ('U', 'Not installed'),
     )
     state = models.CharField(max_length=1, choices=APP_STATES)

@@ -1,5 +1,6 @@
 import pytest
 import yaml
+from django.contrib.messages import get_messages
 from django.urls import reverse
 
 from apps.models import Apps
@@ -50,3 +51,19 @@ def test_get_app_state(app_info):
     Apps.objects.update_or_create(name="jupyterhub", defaults={"state": "I"})
     apps = get_app_state(app_info)
     assert apps["jupyterhub"]["state"] == "Installed"
+
+
+@pytest.mark.django_db
+def test_start_app_install(auth_client, app_info, mocker):
+    mocker.patch("apps.views.get_apps", lambda: app_info)
+
+    apps = get_app_state(app_info)
+    assert apps["jupyterhub"]["state"] == "Not installed"
+
+    r = auth_client.post(reverse('app', kwargs={'name': 'jupyterhub'}), {"state": "installed"})
+    assert list(get_messages(r.wsgi_request))
+    message = list(get_messages(r.wsgi_request))[0].message
+    assert message == "JupyterHub is being installed"
+
+    r = auth_client.get(reverse('app', kwargs={'name': 'jupyterhub'}))
+    assert r.json()["state"] == "Installing"
