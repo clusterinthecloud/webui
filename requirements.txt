@@ -2,6 +2,7 @@ django
 mysqlclient
 django-bootstrap4
 pyyaml
+pytest
 pytest-django
 pytest-mock
 ldap3

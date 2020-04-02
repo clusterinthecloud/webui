@@ -2,6 +2,9 @@ import pytest
 import yaml
 from django.urls import reverse
 
+from apps.models import Apps
+from apps.views import get_app_state
+
 
 @pytest.fixture(scope="function")
 def auth_client(client, django_user_model):
@@ -33,3 +36,17 @@ def test_apps_index(auth_client, app_info, mocker):
     r = auth_client.get(reverse('index'))
     assert "App Store" in r.content.decode()
     assert "JupyterHub" in r.content.decode()
+
+
+@pytest.mark.django_db
+def test_get_app_state(app_info):
+    apps = get_app_state(app_info)
+    assert apps["jupyterhub"]["state"] == "Not installed"
+
+    Apps.objects.update_or_create(name="jupyterhub", defaults={"state": "P"})
+    apps = get_app_state(app_info)
+    assert apps["jupyterhub"]["state"] == "Installing"
+
+    Apps.objects.update_or_create(name="jupyterhub", defaults={"state": "I"})
+    apps = get_app_state(app_info)
+    assert apps["jupyterhub"]["state"] == "Installed"
