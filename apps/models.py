@@ -10,3 +10,14 @@ class App(models.Model):
         ('U', 'Not installed'),
     )
     state = models.CharField(max_length=1, choices=APP_STATES)
+
+
+class Job(models.Model):
+    app = models.ForeignKey(App, on_delete=models.CASCADE)
+    pid = models.PositiveIntegerField()
+    hash = models.CharField(max_length=100)
+    JOB_STATES = (
+        ('R', 'Running'),
+        ('C', 'Completed'),
+    )
+    state = models.CharField(max_length=1, choices=JOB_STATES)

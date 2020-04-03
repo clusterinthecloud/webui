@@ -1,9 +1,11 @@
+import time
+
 import pytest
 import yaml
 from django.contrib.messages import get_messages
 from django.urls import reverse
 
-from apps.models import App
+from apps.models import App, Job
 from apps.views import get_app_state
 
 
@@ -67,3 +69,10 @@ def test_start_app_install(auth_client, app_info, mocker):
 
     r = auth_client.get(reverse('app', kwargs={'name': 'jupyterhub'}))
     assert r.json()["state"] == "Installing"
+
+    assert Job.objects.filter(app="jupyterhub").count() == 1
+
+    time.sleep(1.5)
+
+    r = auth_client.get(reverse('app', kwargs={'name': 'jupyterhub'}))
+    assert r.json()["state"] == "Installed"

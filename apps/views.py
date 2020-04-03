@@ -1,12 +1,14 @@
+import time
 from pathlib import Path
 
+import psutil
 import yaml
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 
-from apps.models import App
+from apps.models import App, Job
 
 
 def get_apps():
@@ -30,11 +32,34 @@ def get_app_state(apps):
     return apps
 
 
+def update_job_states():
+    # TODO Check for failure
+    for job in Job.objects.filter(state="R"):
+        print("Checking job", job)
+        try:
+            p = psutil.Process(job.pid)
+            if str(hash(p)) == job.hash:
+                # We've got the correct process
+                print("Process found:", p, p.status())
+                if p.status() not in {psutil.STATUS_RUNNING, psutil.STATUS_SLEEPING, psutil.STATUS_DISK_SLEEP, psutil.STATUS_WAKING, psutil.STATUS_IDLE}:
+                    raise psutil.NoSuchProcess(job.pid)
+            else:
+                raise psutil.NoSuchProcess(job.pid)
+        except psutil.NoSuchProcess:
+            print("Job has finished")
+            job.state = "C"
+            job.save()
+            job.app.state = "I"  # TODO check for deletion task
+            job.app.save()
+
+
 @login_required
 def index(request):
     """
     List all the available apps and which ones are installed.
     """
+
+    update_job_states()
 
     apps = get_apps()
     apps = get_app_state(apps)
@@ -46,6 +71,8 @@ def index(request):
 
 @login_required
 def app(request, name):
+    update_job_states()
+
     # This might be nicer to be a PUT but we can't send a PUT via HTML
     if request.method == "POST":
         requested_state = request.POST["state"]
@@ -65,7 +92,11 @@ def app(request, name):
         if requested_state == "installed":
             if app_object.state in {"U", "F"}:
                 # Kick off the installation
-                ...  # TODO install it
+
+                p = psutil.Popen(["/bin/sleep", "1"])  # TODO call correct installer
+                j = Job(app=app_object, pid=p.pid, hash=str(hash(p)), state="R")
+                j.save()
+
                 app_object.state = "P"
                 app_object.save()
 
