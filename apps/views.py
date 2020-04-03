@@ -101,7 +101,7 @@ def app(request, name):
                 app_object.save()
 
                 messages.info(request, f"{get_apps()[name]['name']} is being installed")
-                return redirect('index')
+                return redirect('apps:index')
         elif requested_state == "absent:":
             if app_object.state in {"I", "P"}:
                 # Delete the app
@@ -110,7 +110,7 @@ def app(request, name):
                 app_object.save()
 
                 messages.info(request, f"{get_apps()[name]['name']} is being deleted")
-                return redirect('index')
+                return redirect('apps:index')
         else:
             pass  # TODO error, requested state not recognised
 

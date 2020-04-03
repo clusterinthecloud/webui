@@ -36,7 +36,7 @@ def app_info():
 
 def test_apps_index(auth_client, app_info, mocker):
     mocker.patch("apps.views.get_apps", lambda: app_info)
-    r = auth_client.get(reverse('index'))
+    r = auth_client.get(reverse('apps:index'))
     assert "App Store" in r.content.decode()
     assert "JupyterHub" in r.content.decode()
 
@@ -62,17 +62,17 @@ def test_start_app_install(auth_client, app_info, mocker):
     apps = get_app_state(app_info)
     assert apps["jupyterhub"]["state"] == "Not installed"
 
-    r = auth_client.post(reverse('app', kwargs={'name': 'jupyterhub'}), {"state": "installed"})
+    r = auth_client.post(reverse('apps:app', kwargs={'name': 'jupyterhub'}), {"state": "installed"})
     assert list(get_messages(r.wsgi_request))
     message = list(get_messages(r.wsgi_request))[0].message
     assert message == "JupyterHub is being installed"
 
-    r = auth_client.get(reverse('app', kwargs={'name': 'jupyterhub'}))
+    r = auth_client.get(reverse('apps:app', kwargs={'name': 'jupyterhub'}))
     assert r.json()["state"] == "Installing"
 
     assert Job.objects.filter(app="jupyterhub").count() == 1
 
     time.sleep(1.5)
 
-    r = auth_client.get(reverse('app', kwargs={'name': 'jupyterhub'}))
+    r = auth_client.get(reverse('apps:app', kwargs={'name': 'jupyterhub'}))
     assert r.json()["state"] == "Installed"
