@@ -87,4 +87,4 @@ def create_user(conn: Connection, uid: str, given_name: str, sn: str, keys: str)
 
     subprocess.run(["sudo", "/usr/local/libexec/create_home_dir", uid], check=True)
     subprocess.run(["sudo", "/usr/local/libexec/set_ssh_key", uid], check=True, input=keys)
-    subprocess.run(["sudo", "/usr/local/libexec/set_password_file", uid], check=True, input=password)
+    subprocess.run(["sudo", "/usr/local/libexec/set_password_file", uid], check=True, input=password.encode())

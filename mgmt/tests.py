@@ -62,6 +62,14 @@ def test_create_user_get_uid(conn, mocker):
     assert get_user(conn, "matt2").uidNumber == 10002
 
 
+def test_create_user_different_key_types(conn, mocker):
+    run = mocker.patch('subprocess.run')
+    create_user(conn, 'matt', 'Matt', 'Williams', "https://github.com/milliams.keys")
+    for call in run.call_args_list:
+        if "input" in call.kwargs:
+            assert isinstance(call.kwargs["input"], bytes)
+
+
 @pytest.mark.parametrize("keys", [
     "https://github.com/milliams.keys",
     "ssh-rsa AAAAB3NzaC1yc2 matt@home",
