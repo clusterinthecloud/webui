@@ -22,14 +22,14 @@ def connection():
     return conn
 
 
-def get_all_users(conn, attributes=None):
+def get_all_users(conn: Connection, attributes=None):
     obj_posix_account = ObjectDef(['top', 'person', 'organizationalPerson', 'inetOrgPerson', 'posixAccount'], conn)
     r = Reader(conn, obj_posix_account, BASE_DN, attributes=attributes)
     r.search()
     return r
 
 
-def get_user(conn, uid, attributes=None):
+def get_user(conn: Connection, uid: str, attributes=None):
     obj_posix_account = ObjectDef(['top', 'person', 'organizationalPerson', 'inetOrgPerson', 'posixAccount'], conn)
     r = Reader(conn, obj_posix_account, BASE_DN, f"cn: {uid}", attributes=attributes)
     r.search()
@@ -39,7 +39,7 @@ def get_user(conn, uid, attributes=None):
         raise LookupError("User not found")
 
 
-def user_exists(conn, uid):
+def user_exists(conn: Connection, uid: str):
     try:
         get_user(conn, uid)
     except LookupError:
