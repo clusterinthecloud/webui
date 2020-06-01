@@ -9,7 +9,7 @@ def validate_keys(value):
     try:
         URLValidator()(value)
     except ValidationError as e:
-        if not value.startswith("ssh-rsa"):
+        if not (value.startswith("ssh-")):
             raise ValidationError("Must be a URL or an SSH public key")
 
 

@@ -74,6 +74,7 @@ def test_create_user_different_key_types(conn, mocker):
     "https://github.com/milliams.keys",
     "ssh-rsa AAAAB3NzaC1yc2 matt@home",
     "ssh-rsa AAAAB3NzaC1yc2 matt@home\nssh-rsa AAAAB3NzaC1yc2 matt@home",
+    "ssh-ed25519 AAAAC3NzaC1lZD matt@home",
 ])
 def test_validate_form(conn, keys, mocker):
     mocker.patch("mgmt.users.connection", lambda: conn)
